@@ -18,16 +18,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.2
-
-      - name: Install Dependencies
-        run: flutter pub get
-
       - name: Run Token Generator
-        run: flutter pub run tool/generate_tokens.dart
+        run: python3 tool/generate_tokens.py
 
       # 🔥 Auto Bump Version
       - name: Bump Version
