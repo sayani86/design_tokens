@@ -18,14 +18,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: stable
 
       - name: Install Dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Run Token Generator
-        run: dart run tool/generate_tokens.dart
+        run: flutter pub run tool/generate_tokens.dart
 
       # 🔥 Auto Bump Version
       - name: Bump Version
