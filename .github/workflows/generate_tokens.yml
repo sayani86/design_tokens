@@ -50,3 +50,21 @@ jobs:
         run: |
           git tag v${{ env.NEW_VERSION }}
           git push origin main --tags
+
+      - name: Send Email Notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.MAIL_SERVER }}
+          server_port: ${{ secrets.MAIL_PORT }}
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Design Token Update: v${{ env.NEW_VERSION }}"
+          to: ${{ secrets.RECEIVER_EMAIL }}
+          from: "Design Token Automation <${{ secrets.MAIL_USERNAME }}>"
+          body: |
+            New design tokens are available!
+
+            - Version: v${{ env.NEW_VERSION }}
+            - Repository: ${{ github.repository }}
+
+            Check the latest changes in the repository.
