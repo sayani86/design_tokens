@@ -1,0 +1,50 @@
+name: Generate Flutter Tokens
+
+on:
+  push:
+    paths:
+      - 'assets/tokens/Colors.tokens.json'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install Dependencies
+        run: dart pub get
+
+      - name: Run Token Generator
+        run: dart run tool/generate_tokens.dart
+
+      # 🔥 Auto Bump Version
+      - name: Bump Version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          sed -i "s/^version:.*/version: $NEW_VERSION/" pubspec.yaml
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Commit Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add lib/ pubspec.yaml
+          git commit -m "Auto-generate tokens v${{ env.NEW_VERSION }} [skip ci]" || echo "No changes"
+
+      - name: Create Git Tag
+        run: |
+          git tag v${{ env.NEW_VERSION }}
+          git push origin main --tags
